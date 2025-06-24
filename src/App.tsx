@@ -2,8 +2,25 @@ import { WiDaySunny } from "react-icons/wi";
 import { useState } from "react";
 import React from "react";
 
+type data = {
+  id: number;
+  name: string;
+  temperature: string;
+  condition: string;
+};
+
+const TEST_DATA: data[] = [
+  {
+    id: 1,
+    name: "東京",
+    temperature: "28°C",
+    condition: "晴れ",
+  },
+];
+
 function App() {
   const [city, setCity] = useState("");
+  const [weather, setWeather] = useState(TEST_DATA);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCity(e.target.value);
