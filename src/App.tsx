@@ -1,6 +1,7 @@
 import { WiDaySunny } from "react-icons/wi";
 import { useState } from "react";
 import React from "react";
+import useSWR from "swr";
 
 type data = {
   id: number;
@@ -19,6 +20,11 @@ const TEST_DATA: data[] = [
 ];
 
 function App() {
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  const { data, error, isLoading } = useSWR(
+    "https://api.github.com/repos/vercel/swr",
+    fetcher
+  );
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(TEST_DATA);
 
