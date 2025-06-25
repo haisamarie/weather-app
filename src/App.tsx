@@ -25,6 +25,7 @@ function App() {
     "https://api.github.com/repos/vercel/swr",
     fetcher
   );
+
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(TEST_DATA);
 
@@ -54,14 +55,26 @@ function App() {
           </form>
         </div>
 
-        {/* 天気カード */}
-        <div className="bg-white rounded-3xl shadow-xl px-10 py-8 flex flex-col items-center w-full max-w-xs">
-          <div className="text-lg font-bold text-blue-600 mb-2">東京</div>
-          <WiDaySunny size={100} color="orange" />
+        {weather.map((item) => {
+          return (
+            <div
+              key={item.id}
+              className="bg-white rounded-3xl shadow-xl px-10 py-8 flex flex-col items-center w-full max-w-xs"
+            >
+              <div className="text-lg font-bold text-blue-600 mb-2">
+                {item.name}
+              </div>
+              <WiDaySunny size={100} color="orange" />
 
-          <div className="text-4xl font-bold text-gray-700 mb-2">28°C</div>
-          <div className="text-base text-gray-500 tracking-wide">晴れ</div>
-        </div>
+              <div className="text-4xl font-bold text-gray-700 mb-2">
+                {item.temperature}
+              </div>
+              <div className="text-base text-gray-500 tracking-wide">
+                {item.condition}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
