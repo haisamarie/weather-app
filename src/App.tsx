@@ -21,8 +21,11 @@ const TEST_DATA: data[] = [
 
 function App() {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
+  const lat = 35.6895; // 東京の緯度
+  const lon = 139.6917; // 東京の経度
   const { data, error, isLoading } = useSWR(
-    "https://api.github.com/repos/vercel/swr",
+    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`,
     fetcher
   );
 
@@ -32,6 +35,8 @@ function App() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCity(e.target.value);
   };
+
+  console.log(data, "data");
 
   return (
     <div className="App">
