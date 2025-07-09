@@ -28,9 +28,21 @@ const useGetCity = (city: string) => {
     ? `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${apiKey}`
     : null;
 
+  const { data } = useSWR(key, fetcher);
+  return {
+    city: data,
+  };
+};
+//緯度、経度から天気を取得する関数。
+const useGetWether = (lat: string, lon: string) => {
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
+  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
+
+  const key = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+
   const { data, error, isLoading } = useSWR(key, fetcher);
   return {
-    cityList: data,
+    wetherList: data,
     isLoading,
     isError: Boolean(error),
   };
@@ -39,9 +51,9 @@ const useGetCity = (city: string) => {
 function App() {
   const [inputCity, setInputCity] = useState("");
   const [searchCity, setSearchCity] = useState("");
-  const [weather, setWeather] = useState(TEST_DATA);
 
-  const { cityList, isLoading, isError } = useGetCity(searchCity);
+  const { city } = useGetCity(searchCity);
+  const { wetherList } = useGetWether("12.345678", "98.765432");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputCity(e.target.value);
@@ -50,6 +62,8 @@ function App() {
     e.preventDefault();
     setSearchCity(inputCity.trim());
   };
+
+  console.log(wetherList);
 
   return (
     <div className="App">
@@ -76,7 +90,7 @@ function App() {
           </form>
         </div>
 
-        {weather.map((item) => {
+        {TEST_DATA.map((item) => {
           return (
             <div
               key={item.id}
