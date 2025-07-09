@@ -1,24 +1,22 @@
-import { WiDaySunny } from "react-icons/wi";
 import { useState } from "react";
 import React from "react";
 import useSWR from "swr";
 
-type data = {
-  id: number;
+interface WeatherLite {
   name: string;
-  temperature: string;
-  condition: string;
-};
-
-const TEST_DATA: data[] = [
-  {
-    id: 1,
-    name: "東京",
-    temperature: "28°C",
-    condition: "晴れ",
-  },
-];
-
+  id: string;
+  weather: {
+    id: number;
+    main: string;
+    description: string;
+    icon: string;
+  }[];
+  main: {
+    temp: number;
+    feels_like: number;
+    humidity: number;
+  };
+}
 //都市名から緯度、経度を取得する関数。
 const useGetCity = (city: string) => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -30,19 +28,21 @@ const useGetCity = (city: string) => {
 
   const { data } = useSWR(key, fetcher);
   return {
-    city: data,
+    data,
   };
 };
 //緯度、経度から天気を取得する関数。
-const useGetWether = (lat: string, lon: string) => {
+const useGetWeather = (lat: string, lon: string) => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
-  const key = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
-
-  const { data, error, isLoading } = useSWR(key, fetcher);
+  const key =
+    lat != null && lon != null
+      ? `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
+      : null;
+  const { data, error, isLoading } = useSWR<WeatherLite>(key, fetcher);
   return {
-    wetherList: data,
+    data,
     isLoading,
     isError: Boolean(error),
   };
@@ -52,8 +52,14 @@ function App() {
   const [inputCity, setInputCity] = useState("");
   const [searchCity, setSearchCity] = useState("");
 
-  const { city } = useGetCity(searchCity);
-  const { wetherList } = useGetWether("12.345678", "98.765432");
+  const { data: cityData } = useGetCity(searchCity);
+  const lat = cityData?.[0]?.lat;
+  const lon = cityData?.[0]?.lon;
+  const {
+    data: weatherData,
+    isLoading: weatherLoading,
+    isError: weatherError,
+  } = useGetWeather(lat, lon);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputCity(e.target.value);
@@ -63,7 +69,8 @@ function App() {
     setSearchCity(inputCity.trim());
   };
 
-  console.log(wetherList);
+  const iconCode = weatherData?.weather[0].icon;
+  const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
   return (
     <div className="App">
@@ -90,26 +97,31 @@ function App() {
           </form>
         </div>
 
-        {TEST_DATA.map((item) => {
-          return (
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl shadow-xl px-10 py-8 flex flex-col items-center w-full max-w-xs"
-            >
-              <div className="text-lg font-bold text-blue-600 mb-2">
-                {item.name}
-              </div>
-              <WiDaySunny size={100} color="orange" />
+        {/* 天気取得状態 */}
+        {weatherLoading && <p>天気情報を取得中…</p>}
+        {weatherError && <p>天気情報の取得に失敗しました</p>}
 
+        <div className="bg-white rounded-3xl shadow-xl px-10 py-8 flex flex-col items-center w-full max-w-xs">
+          <div className="text-lg font-bold text-blue-600 mb-2">
+            {weatherData?.name}
+          </div>
+          {weatherData?.weather.map((item) => (
+            <div key={item.id}>
+              <img
+                src={iconUrl}
+                alt={weatherData.weather[0].description}
+                width={100}
+                height={100}
+              />
               <div className="text-4xl font-bold text-gray-700 mb-2">
-                {item.temperature}
+                {weatherData.main.temp.toFixed(1)}°C
               </div>
-              <div className="text-base text-gray-500 tracking-wide">
-                {item.condition}
+              <div className="text-base text-gray-500 tracking-wide text-center">
+                {item.main}
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
