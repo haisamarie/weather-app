@@ -2,7 +2,11 @@ import { useState } from "react";
 import React from "react";
 import useSWR from "swr";
 
-interface WeatherLite {
+type CityType = {
+  lat: number;
+  lon: number;
+};
+type WeatherLite = {
   name: string;
   id: string;
   weather: {
@@ -16,7 +20,7 @@ interface WeatherLite {
     feels_like: number;
     humidity: number;
   };
-}
+};
 //都市名から緯度、経度を取得する関数。
 const useGetCity = (city: string) => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -26,13 +30,13 @@ const useGetCity = (city: string) => {
     ? `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${apiKey}`
     : null;
 
-  const { data } = useSWR(key, fetcher);
+  const { data } = useSWR<CityType[]>(key, fetcher);
   return {
-    data,
+    data: data?.[0],
   };
 };
 //緯度、経度から天気を取得する関数。
-const useGetWeather = (lat: string, lon: string) => {
+const useGetWeather = (lat: number | undefined, lon: number | undefined) => {
   const fetcher = (url: string) => fetch(url).then((res) => res.json());
   const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
@@ -53,8 +57,8 @@ function App() {
   const [searchCity, setSearchCity] = useState("");
 
   const { data: cityData } = useGetCity(searchCity);
-  const lat = cityData?.[0]?.lat;
-  const lon = cityData?.[0]?.lon;
+  const lat = cityData?.lat;
+  const lon = cityData?.lon;
   const {
     data: weatherData,
     isLoading: weatherLoading,
