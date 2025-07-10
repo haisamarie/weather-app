@@ -3,8 +3,7 @@ import React from "react";
 import { useGetWeather } from "./hooks/useGetWeather";
 import { useGetCity } from "./hooks/useGetCity";
 import { Card } from "./components/Card";
-import { Input } from "./components/Input";
-import { Button } from "./components/Button";
+import { Form } from "./components/Form";
 
 function App() {
   const [inputCity, setInputCity] = useState("");
@@ -34,17 +33,11 @@ function App() {
     <div className="App">
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200">
         <div className="w-full max-w-sm mb-6">
-          <form
+          <Form
+            value={inputCity}
+            onChange={handleChange}
             onSubmit={handleSubmit}
-            className="flex shadow-md rounded-full overflow-hidden bg-white"
-          >
-            <Input
-              value={inputCity}
-              onChange={handleChange}
-              placeholder="Enter city name"
-            />
-            <Button text="search" />
-          </form>
+          />
         </div>
         <Card
           iconUrl={iconUrl}
