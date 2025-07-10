@@ -1,56 +1,7 @@
 import { useState } from "react";
 import React from "react";
-import useSWR from "swr";
-
-type CityType = {
-  lat: number;
-  lon: number;
-};
-type WeatherLite = {
-  name: string;
-  id: string;
-  weather: {
-    id: number;
-    main: string;
-    description: string;
-    icon: string;
-  }[];
-  main: {
-    temp: number;
-    feels_like: number;
-    humidity: number;
-  };
-};
-//都市名から緯度、経度を取得する関数。
-const useGetCity = (city: string) => {
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
-  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
-
-  const key = city
-    ? `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${apiKey}`
-    : null;
-
-  const { data } = useSWR<CityType[]>(key, fetcher);
-  return {
-    data: data?.[0],
-  };
-};
-//緯度、経度から天気を取得する関数。
-const useGetWeather = (lat: number | undefined, lon: number | undefined) => {
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
-  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
-
-  const key =
-    lat != null && lon != null
-      ? `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
-      : null;
-  const { data, error, isLoading } = useSWR<WeatherLite>(key, fetcher);
-  return {
-    data,
-    isLoading,
-    isError: Boolean(error),
-  };
-};
+import { useGetWeather } from "./hooks/useGetWeather";
+import { useGetCity } from "./hooks/useGetCity";
 
 function App() {
   const [inputCity, setInputCity] = useState("");
@@ -92,7 +43,6 @@ function App() {
               className="flex-1 px-5 py-3 bg-transparent focus:outline-none text-gray-700 placeholder:text-gray-400"
             />
             <button
-              onClick={() => {}}
               type="submit"
               className="bg-blue-300 text-white px-7 py-3 font-bold hover:bg-blue-400 transition"
             >
